@@ -762,8 +762,6 @@ function ispapi_ClientAreaCustomButtonArray($params)
  */
 function ispapi_dnssec($params)
 {
-    $origparams = $params;
-
     if (isset($params["original"])) {
         $params = $params["original"];
     }
@@ -973,7 +971,6 @@ function ispapi_IsAffectedByIRTP($domain, $params)
 function ispapi_GetDomainInformation($params)
 {
     $values = array();
-    $origparams = $params;
     $params = ispapi_get_utf8_params($params);
     if (isset($params["original"])) {
         $params = $params["original"];
@@ -1652,7 +1649,6 @@ function ispapi_SaveContactDetails($params)
     // $params has invalid chars for idn domain names where $params["original"] is fine [kschwarz]
     // JIRA #HM-709
     // WHMCS #YOV-471189 (unconfirmed)
-    $origparams = $params;
     $params = ispapi_get_utf8_params($params);
     //--------------- EXCEPTION [END] -----------
 
@@ -1665,7 +1661,7 @@ function ispapi_SaveContactDetails($params)
     $status_response = ispapi_call([
         "COMMAND" => "StatusDomain",
         "DOMAIN" => $domain
-    ], ispapi_config($origparams));
+    ], ispapi_config($params));
     if ($status_response["CODE"] != 200) {
         return [
             "error" => $status_response["DESCRIPTION"]
@@ -1703,7 +1699,7 @@ function ispapi_SaveContactDetails($params)
         $queryDomainOptions_response = ispapi_call([
             "COMMAND" => "QueryDomainOptions",
             "DOMAIN0" => $domain
-        ], ispapi_config($origparams));
+        ], ispapi_config($params));
         //AFNIC TLDs => pm, tf, wf, yt, fr, re
         if (!preg_match("/AFNIC/i", $queryDomainOptions_response["PROPERTY"]["REPOSITORY"][0])) {
             if ($params["irtpOptOut"]) {
@@ -1767,7 +1763,7 @@ function ispapi_SaveContactDetails($params)
             "COMMAND" => "StatusDomain",
             "DOMAIN" => $domain
         );
-        $status_response = ispapi_call($status_command, ispapi_config($origparams));
+        $status_response = ispapi_call($status_command, ispapi_config($params));
 
         if ($status_response["CODE"] != 200) {
             return [
@@ -1788,7 +1784,7 @@ function ispapi_SaveContactDetails($params)
             "COMMAND" => "StatusDomain",
             "DOMAIN" => $domain
         );
-        $status_response = ispapi_call($status_command, ispapi_config($origparams));
+        $status_response = ispapi_call($status_command, ispapi_config($params));
 
         if ($status_response["CODE"] != 200) {
             $values["error"] = $status_response["DESCRIPTION"];
@@ -1802,7 +1798,7 @@ function ispapi_SaveContactDetails($params)
             unset($registrant_command["FIRSTNAME"]);
             unset($registrant_command["LASTNAME"]);
             unset($registrant_command["ORGANIZATION"]);
-            $registrant_response = ispapi_call($registrant_command, ispapi_config($origparams));
+            $registrant_response = ispapi_call($registrant_command, ispapi_config($params));
 
             if ($registrant_response["CODE"] != 200) {
                 $values["error"] = $registrant_response["DESCRIPTION"];
@@ -1816,7 +1812,7 @@ function ispapi_SaveContactDetails($params)
         unset($command["X-CA-LEGALTYPE"]);
     }
 
-    $response = ispapi_call($command, ispapi_config($origparams));
+    $response = ispapi_call($command, ispapi_config($params));
     
     if ($response["CODE"] != 200) {
         return [
@@ -1916,6 +1912,10 @@ function ispapi_DeleteNameserver($params)
  */
 function ispapi_IDProtectToggle($params)
 {
+    if (isset($params["original"])) {
+        $params = $params["original"];
+    }
+
     $params = injectDomainObjectIfNecessary($params);
     /** @var \WHMCS\Domains\Domain $domain */
     $domain = $params["domainObj"];
@@ -1967,7 +1967,6 @@ function ispapi_RegisterDomain($params)
     global $additionaldomainfields;
 
     $values = array();
-    $origparams = $params;
 
     $premiumDomainsEnabled = (bool) $params['premiumEnabled'];
     $premiumDomainsCost = $params['premiumCost'];
@@ -2024,7 +2023,7 @@ function ispapi_RegisterDomain($params)
         "ADMINCONTACT0" => $admin
     );
 
-    if ($origparams["TRANSFERLOCK"]) {
+    if ($params["TRANSFERLOCK"]) {
         $command["TRANSFERLOCK"] = 1;
     }
 
@@ -2057,7 +2056,7 @@ function ispapi_RegisterDomain($params)
                     "DOMAIN" => array($domain),
                     "PREMIUMCHANNELS" => "*"
             );
-            $check = ispapi_call($c, ispapi_config($origparams));
+            $check = ispapi_call($c, ispapi_config($params));
             if ($check["CODE"] == 200) {
                 $registrar_premium_domain_price = $check["PROPERTY"]["PRICE"][0];
                 $registrar_premium_domain_class = empty($check["PROPERTY"]["CLASS"][0]) ? "AFTERMARKET_PURCHASE_".$check["PROPERTY"]["PREMIUMCHANNEL"][0] : $check["PROPERTY"]["CLASS"][0];
@@ -2077,7 +2076,7 @@ function ispapi_RegisterDomain($params)
     }
     //#####################################################################
 
-    $response = ispapi_call($command, ispapi_config($origparams));
+    $response = ispapi_call($command, ispapi_config($params));
 
     if ($response["CODE"] != 200) {
         $values["error"] = $response["DESCRIPTION"];
@@ -2103,6 +2102,10 @@ function ispapi_RegisterDomain($params)
  */
 function ispapi_TransferDomain($params)
 {
+    if (isset($params["original"])) {
+        $params = $params["original"];
+    }
+
     $params = injectDomainObjectIfNecessary($params);
     /** @var \WHMCS\Domains\Domain $domain */
     $domain = $params["domainObj"];
@@ -2386,6 +2389,10 @@ function ispapi_RequestDelete($params)
  */
 function ispapi_TransferSync($params)
 {
+    if (isset($params["original"])) {
+        $params = $params["original"];
+    }
+
     $params = injectDomainObjectIfNecessary($params);
     /** @var \WHMCS\Domains\Domain $domain */
     $domain = $params["domainObj"];
@@ -2507,6 +2514,10 @@ function ispapi_TransferSync($params)
  */
 function ispapi_Sync($params)
 {
+    if (isset($params["original"])) {
+        $params = $params["original"];
+    }
+
     $params = injectDomainObjectIfNecessary($params);
     /** @var \WHMCS\Domains\Domain $domain */
     $domain = $params["domainObj"];
@@ -2743,13 +2754,13 @@ function ispapi_get_contact_info2(&$command, $data, $map)
  */
 function ispapi_whoisprivacy($params)
 {
-    $params = injectDomainObjectIfNecessary($params);
-    /** @var \WHMCS\Domains\Domain $domain */
-    $domain = $params["domainObj"];
-
     if (isset($params["original"])) {
         $params = $params["original"];
     }
+
+    $params = injectDomainObjectIfNecessary($params);
+    /** @var \WHMCS\Domains\Domain $domain */
+    $domain = $params["domainObj"];
     
     $addflds = new \ISPAPI\AdditionalFields();
     $addflds->setDomainType("whoisprivacy")->setDomain($domain->getDomain());
@@ -2774,7 +2785,7 @@ function ispapi_whoisprivacy($params)
     ], ispapi_config($params));
 
     $addflds->setFieldValuesFromAPI($r);
-    $protected = $addflds->getFieldValue(0);
+    $protected = $addflds->getFieldValue(0);//TODO reverse logic for DISCLOSE flags!
 
     return [
         'templatefile' => "whoisprivacy",
@@ -2795,14 +2806,15 @@ function ispapi_whoisprivacy($params)
  */
 function ispapi_registrantmodification($params)
 {
+    if (isset($params["original"])) {
+        $params = $params["original"];
+    }
+
     $params = injectDomainObjectIfNecessary($params);
     /** @var \WHMCS\Domains\Domain $domain */
     $domain = $params["domainObj"];
 
-    $origparams = $params;
-    if (isset($params["original"])) {
-        $params = $params["original"];
-    }
+
 
     $addflds = new \ISPAPI\AdditionalFields();
     $addflds->setDomainType("update")->setDomain($domain->getDomain());
@@ -2839,7 +2851,7 @@ function ispapi_registrantmodification($params)
             ]);
 
             $addflds->addToCommand($command, $params["country"]);
-            $r = ispapi_call($command, ispapi_config($origparams));
+            $r = ispapi_call($command, ispapi_config($params));
 
             if ($r["CODE"] == 200) {
                 $addflds->saveToDatabase();
@@ -2876,14 +2888,13 @@ function ispapi_registrantmodification($params)
  */
 function ispapi_registrantmodificationtrade($params)
 {
-    $params = injectDomainObjectIfNecessary($params);
-    /** @var \WHMCS\Domains\Domain $domain */
-    $domain = $params["domainObj"];
-
-    $origparams = $params;
     if (isset($params["original"])) {
         $params = $params["original"];
     }
+
+    $params = injectDomainObjectIfNecessary($params);
+    /** @var \WHMCS\Domains\Domain $domain */
+    $domain = $params["domainObj"];
 
     $addflds = new \ISPAPI\AdditionalFields();
     $addflds->setDomainType("trade")->setDomain($domain->getDomain());
@@ -2924,7 +2935,7 @@ function ispapi_registrantmodificationtrade($params)
             ispapi_get_contact_info2($command, $_POST, $map);
 
             $addflds->addToCommand($command, $params["country"]);
-            $response = ispapi_call($command, ispapi_config($origparams));
+            $response = ispapi_call($command, ispapi_config($params));
             if ($response["CODE"] == 200) {
                 $addflds->saveToDatabase();
                 $successful = $response["DESCRIPTION"];

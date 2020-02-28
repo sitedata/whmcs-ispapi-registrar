@@ -55,6 +55,13 @@
                     <input type="hidden" name="a" value="{$smarty.request.a|htmlspecialchars}" />                    
                     <input type="hidden" name="id" value="{$domainid}" />
                     <input type='hidden' name="idprotection" value='enable' />
+
+                    {foreach key=fieldLabel item=inputHTML from=$additionalfields->getFieldsForOutput()}
+                        <div class="form-group">
+                            <label>{$fieldLabel}</label><br/> {$inputHTML}
+                        </div>
+                    {/foreach}
+
                     <p><input type="submit" class="btn btn-success btn-large" value="{$LANG.hxwhoisprivacybttnenable}" /></p>
                 </form>
             {else}
